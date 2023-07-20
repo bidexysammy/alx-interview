@@ -1,43 +1,46 @@
 #!/usr/bin/python3
-"""Log parsing"""
-from sys import stdin
 
-if __name__ == "__main__":
+""" script that reads stdin line by line and computes metrics """
 
-    statusCodes = {200: 0, 301: 0, 400: 0, 401: 0,
-                   403: 0, 404: 0, 405: 0, 500: 0}
-    totalSize = 0
+import sys
 
-    def parseLine(line):
-        """Parses a line of known format"""
-        global totalSize
+
+def printStatus(dic, size):
+    """ Prints information """
+    print("File size: {:d}".format(size))
+    for i in sorted(dic.keys()):
+        if dic[i] != 0:
+            print("{}: {:d}".format(i, dic[i]))
+
+
+# sourcery skip: use-contextlib-suppress
+statusCodes = {"200": 0, "301": 0, "400": 0, "401": 0, "403": 0,
+               "404": 0, "405": 0, "500": 0}
+
+count = 0
+size = 0
+
+try:
+    for line in sys.stdin:
+        if count != 0 and count % 10 == 0:
+            printStatus(statusCodes, size)
+
+        stlist = line.split()
+        count += 1
 
         try:
-            toks = line.rstrip().split(' ')
-            totalSize += int(toks[-1])
-
-            if int(toks[-2]) in statusCodes:
-                statusCodes[int(toks[-2])] += 1
-
-        except BaseException:
+            size += int(stlist[-1])
+        except Exception:
             pass
 
-    def printStats():
-        """Prints all current stats"""
-        print("File size: {}".format(totalSize))
-        for k in sorted(statusCodes.keys()):
-            if statusCodes[k]:
-                print("{}: {}".format(k, statusCodes[k]))
+        try:
+            if stlist[-2] in statusCodes:
+                statusCodes[stlist[-2]] += 1
+        except Exception:
+            pass
+    printStatus(statusCodes, size)
 
-    lineNb = 1
 
-    try:
-        for line in stdin:
-            parseLine(line)
-            if lineNb % 10 == 0:
-                printStats()
-            lineNb += 1
-    except KeyboardInterrupt:
-        printStats()
-        raise
-    printStats()
+except KeyboardInterrupt:
+    printStatus(statusCodes, size)
+    raise
