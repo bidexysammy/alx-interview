@@ -1,37 +1,33 @@
 #!/usr/bin/python3
-"""UTF8 Validator"""
+"""
+Defines a UTF-8 Validation function
+"""
 
 
 def validUTF8(data):
-    """Checks if data is valid UTF8
-    Arguments:
-        data: list if integers
-    Return:
-        True if data is valid UTF8, False if not
     """
-
-    nbBytes = 0
-
-    mask1 = 1 << 7
-    mask2 = 1 << 6
-
-    for byte in data:
-        mask = 1 << 7
-
-        if nbBytes == 0:
-            while byte & mask:
-                nbBytes += 1
-                mask = mask >> 1
-
-            if nbBytes == 0:
+    UTF-8 Validation
+    Args:
+        data (list[int]): an array of characters represented as 1byte int
+    Returns:
+        (True): if all characters in data are valid UTF-8 code point
+        (False): if one or more characters in data are invalid code point
+    """
+    tesla = 1 << 7
+    spaceX = 1 << 6
+    byteCount = 0
+    for codePoint in data:
+        elon = 1 << 7
+        if byteCount == 0:
+            while elon & codePoint:
+                byteCount += 1
+                elon = elon >> 1
+            if byteCount == 0:
                 continue
-
-            if nbBytes == 1 or nbBytes > 4:
+            if byteCount == 1 or byteCount > 4:
                 return False
-
         else:
-            if not byte & mask1 and byte & mask2:
+            if not (codePoint & tesla and not (codePoint & spaceX)):
                 return False
-        nbBytes -= 1
-
-    return nbBytes == 0
+        byteCount -= 1
+    return not byteCount
